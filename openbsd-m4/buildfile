@@ -1,0 +1,91 @@
+import! [metadata] yacc = byacc%exe{byacc}
+import! [metadata] flex = reflex%exe{reflex}
+
+./: exe{openbsd-m4} doc{README.md} man1{openbsd-m4} manifest
+
+define y: file
+y{*}: extension = y
+
+define l: file
+l{*}: extension = l
+
+exe{openbsd-m4}: {h c}{* -parser -tokenizer -reallocarray -strtonum -strlcpy} \
+                 {h c}{parser} c{tokenizer}
+
+exe{openbsd-m4}: ohash/{h c}{ohash}: include = ($c.target.system != 'openbsd')
+
+# NOTE: these tests must match those in config.h.
+#
+# reallocarray() first appeared in glibc 2.26 and requires _GNU_SOURCE until
+# 2.29. So we don't bother for now.
+#
+exe{openbsd-m4}: c{reallocarray}: include = ($c.target.class != 'bsd' && \
+                                             $c.target.class != 'macos')
+exe{openbsd-m4}: c{strtonum}: include = ($c.target.class != 'bsd')
+exe{openbsd-m4}: c{strlcpy}: include = ($c.target.class != 'bsd' && \
+                                        $c.target.class != 'macos')
+
+# Note that we suppress #line directives (-l/-L) since directory separators
+# are not properly escaped on Windows.
+#
+<{h c}{parser}>: y{parser} $yacc
+{{
+  diag yacc ($<[0])
+  $yacc -l -y "--defines=$path($>[0])" -o $path($>[1]) $path($<[0])
+}}
+
+c{tokenizer}: l{tokenizer} h{parser} $flex
+{{
+  diag lex ($<[0])
+  $flex -L -o $path($>) $path($<[0])
+}}
+
+# Backlink in the source directory for convenience of development.
+#
+{h c}{parser} c{tokenizer}: backlink = true
+
+c.poptions =+ "-I$out_root" "-I$src_root"
+
+if ($c.target.system != 'openbsd')
+  c.poptions =+ "-I($src_root/ohash)"
+
+#if ($c.stdlib == 'glibc')
+#  c.poptions += -D_GNU_SOURCE
+
+c.poptions += -DEXTENDED
+
+# <unistd.h> shouldn't be necessary for non-interactive scanner.
+#
+obj{tokenizer}: c.poptions += -DYY_NEVER_INTERACTIVE=1 -DYY_NO_UNISTD_H
+
+# Disable warnings.
+#
+switch $c.class
+{
+  case 'gcc'
+  {
+    c.coptions += -Wno-extra -Wno-error
+
+    obj{tokenizer}: c.coptions += -Wno-unused-function -Wno-unused-label
+  }
+
+ #case 'msvc'
+ #  c.coptions += /w
+}
+
+if ($c.target.class != 'windows')
+  c.libs += -lm
+
+# A smoke test.
+#
+exe{openbsd-m4}:
+% test
+{{
+  diag test $>
+  $> -P <<EOI >>?EOO
+    m4_define(`hello', `Hello, World')m4_dnl
+    hello, welcome to m4!
+    EOI
+    Hello, World, welcome to m4!
+    EOO
+}}

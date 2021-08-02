@@ -1,0 +1,15 @@
+: 1
+name: openbsd-m4
+version: 6.9
+summary: OpenBSD m4 general-purpose macro processor
+license: BSD-3-Clause
+topics: m4, macro processor, macro language
+description-file: README.md
+url: https://github.com/build2-packaging/openbsd-m4
+package-email: boris@codesynthesis.com
+build-error-email: builds@build2.org
+builds: host
+depends: * build2 >= 0.14.0-
+depends: * bpkg >= 0.14.0-
+depends: * byacc >= 20210619
+depends: * reflex >= 20210510
