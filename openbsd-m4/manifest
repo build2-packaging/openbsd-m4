@@ -8,6 +8,8 @@ description-file: README.md
 url: https://github.com/build2-packaging/openbsd-m4
 package-email: boris@codesynthesis.com
 build-error-email: builds@build2.org
+builds: default
+builds: -windows ; Windows is not yet supported.
 requires: host
 depends: * build2 >= 0.14.0-
 depends: * bpkg >= 0.14.0-
