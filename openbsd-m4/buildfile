@@ -19,8 +19,7 @@ exe{openbsd-m4}: ohash/{h c}{ohash}: include = ($c.target.system != 'openbsd')
 # reallocarray() first appeared in glibc 2.26 and requires _GNU_SOURCE until
 # 2.29. So we don't bother for now.
 #
-exe{openbsd-m4}: c{reallocarray}: include = ($c.target.class != 'bsd' && \
-                                             $c.target.class != 'macos')
+exe{openbsd-m4}: c{reallocarray}: include = ($c.target.class != 'bsd')
 exe{openbsd-m4}: c{strtonum}: include = ($c.target.class != 'bsd')
 exe{openbsd-m4}: c{strlcpy}: include = ($c.target.class != 'bsd' && \
                                         $c.target.class != 'macos')

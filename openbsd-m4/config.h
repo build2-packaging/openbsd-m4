@@ -5,8 +5,7 @@
  */
 #if !defined(__FreeBSD__) && \
     !defined(__OpenBSD__) && \
-    !defined(__NetBSD__)  && \
-    !defined(__APPLE__)
+    !defined(__NetBSD__)
 extern void *reallocarray(void *, size_t, size_t);
 #endif
 
