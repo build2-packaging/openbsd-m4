@@ -169,6 +169,16 @@ main(int argc, char *argv[])
 	int c;
 	int n;
 	char *p;
+	/* Handle --build2-metadata (see also buildfile). */
+	if (argc == 2 && strncmp (argv[1], "--build2-metadata=", 18) == 0) {
+		printf ("# build2 buildfile openbsd-m4\n");
+		printf ("export.metadata = 1 openbsd_m4\n");
+		printf ("openbsd_m4.name = [string] m4\n");
+		printf ("openbsd_m4.version = [string] '%s'\n", OPENBSD_M4_VERSION);
+		printf ("openbsd_m4.checksum = [string] '%s'\n", OPENBSD_M4_VERSION);
+		printf ("openbsd_m4.environment = [strings] M4PATH\n");
+		return 0;
+	}
 #if 0
 	if (pledge("stdio rpath wpath cpath tmppath proc exec", NULL) == -1)
 		err(1, "pledge");

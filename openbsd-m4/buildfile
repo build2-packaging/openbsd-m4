@@ -3,6 +3,18 @@ import! [metadata] flex = reflex%exe{reflex}
 
 ./: exe{openbsd-m4} doc{README.md} man1{openbsd-m4} manifest
 
+# Target metadata, see also --build2-metadata in main.c.
+#
+#
+exe{openbsd-m4}:
+{
+  export.metadata = 1 openbsd_m4
+  openbsd_m4.name = [string] m4
+  openbsd_m4.version  = [string] $version
+  openbsd_m4.checksum = [string] $version
+  openbsd_m4.environment = [strings] M4PATH
+}
+
 define y: file
 y{*}: extension = y
 
@@ -56,6 +68,7 @@ c.poptions += -DEXTENDED
 # <unistd.h> shouldn't be necessary for non-interactive scanner.
 #
 obj{tokenizer}: c.poptions += -DYY_NEVER_INTERACTIVE=1 -DYY_NO_UNISTD_H
+obj{main}: c.poptions += "-DOPENBSD_M4_VERSION=\"$version\""
 
 # Disable warnings.
 #
